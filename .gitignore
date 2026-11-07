@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+node_modules/
+dist/
+backend/notemind.db
+storage/uploads/*
+storage/exports/*
+!storage/.gitkeep
+backend/app/main_backup.py

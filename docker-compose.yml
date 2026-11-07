@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: notemind
+      POSTGRES_USER: notemind
+      POSTGRES_PASSWORD: change-this-db-password
+    volumes: [notemind_pg:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notemind -d notemind"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  backend:
+    build: ./backend
+    env_file: ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://notemind:change-this-db-password@db:5432/notemind
+      UPLOAD_DIR: /data/uploads
+      FRONTEND_ORIGIN: http://localhost:8080
+    volumes: [notemind_uploads:/data/uploads]
+    ports: ["8000:8000"]
+    depends_on:
+      db:
+        condition: service_healthy
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:8000
+    ports: ["8080:80"]
+    depends_on: [backend]
+volumes:
+  notemind_pg:
+  notemind_uploads:
